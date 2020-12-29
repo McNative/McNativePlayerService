@@ -18,6 +18,7 @@ public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAct
 
     @Override
     public void onActionReceive(MAFActionExecutor executor, PlayerJoinAction action) {
+        this.service.logIncomingAction(executor, action);
         long now = System.currentTimeMillis();
         Timestamp timestampNow = new Timestamp(now);
 

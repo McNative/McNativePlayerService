@@ -12,8 +12,8 @@
         <dependency.pretronic.databasequery.version>1.2.46.73-SNAPSHOT</dependency.pretronic.databasequery.version>
         <dependency.mariadb.version>2.6.0</dependency.mariadb.version>
         <dependency.sentry.version>3.1.0</dependency.sentry.version>
-        <dependency.mcnative.actionframework.sdk>1.0.7.17-SNAPSHOT</dependency.mcnative.actionframework.sdk>
-        <dependency.mcnative.actionframework.service>1.0.1.19-SNAPSHOT</dependency.mcnative.actionframework.service>
+        <dependency.mcnative.actionframework.sdk>1.0.8.18-SNAPSHOT</dependency.mcnative.actionframework.sdk>
+        <dependency.mcnative.actionframework.service>1.0.2.20-SNAPSHOT</dependency.mcnative.actionframework.service>
 
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
