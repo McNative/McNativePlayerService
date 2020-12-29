@@ -114,7 +114,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.mcnative.service.</mainClass>
+                            <mainClass>org.mcnative.service.player.McNativePlayerServiceBootstrap</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
