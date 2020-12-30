@@ -32,7 +32,7 @@ public class StorageService {
                 .setPassword(Environment.getVariable("DATABASE_PASSWORD"))
                 .build();
 
-        this.databaseDriver = DatabaseDriverFactory.create("McNativeMonitoringService", storageConfiguration, logger);
+        this.databaseDriver = DatabaseDriverFactory.create("McNativePlayerService", storageConfiguration, logger);
         this.databaseDriver.connect();
 
         this.database = databaseDriver.getDatabase(Environment.getVariable("DATABASE_NAME"));

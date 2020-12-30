@@ -30,7 +30,7 @@ public final class McNativePlayerService {
         factory.setHost(Environment.getVariable("RABBITMQ_HOST"));
         factory.setUsername(Environment.getVariable("RABBITMQ_USERNAME"));
         factory.setPassword(Environment.getVariable("RABBITMQ_PASSWORD"));
-        this.mafConnector = MAFRabbitMQConnector.createShared(factory, "McNativeMonitoringService", true);
+        this.mafConnector = MAFRabbitMQConnector.createShared(factory, "McNativePlayerService", true);
         registerActionListeners();
         this.mafConnector.connect();
     }
