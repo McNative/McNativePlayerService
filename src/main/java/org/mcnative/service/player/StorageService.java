@@ -77,9 +77,9 @@ public class StorageService {
 
     public void removeServerPlayer(UUID networkId, UUID serverId, UUID playerId) {
         getServerPlayersCollection().delete()
-                .where("NetworkId", networkId)
-                .where("ServerId", serverId)
-                .where("PlayerId", playerId)
+                .where("NetworkId", networkId.toString())
+                .where("ServerId", serverId.toString())
+                .where("PlayerId", playerId.toString())
                 .execute();
     }
 }
