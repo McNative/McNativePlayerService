@@ -18,8 +18,7 @@ public class PlayerLeaveActionListener implements MAFActionListener<PlayerLeaveA
     @Override
     public void onActionReceive(MAFActionExecutor executor, PlayerLeaveAction action) {
         this.service.logIncomingAction(executor, action);
-        long now = System.currentTimeMillis();
-        Timestamp timestampNow = new Timestamp(now);
+        Timestamp timestampNow = new Timestamp(System.currentTimeMillis());
 
         this.service.getStorageService().getServerPlayersCollection().delete()
                 .where("NetworkId", executor.getNetworkId().toString())

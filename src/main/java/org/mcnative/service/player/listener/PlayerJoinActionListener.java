@@ -19,8 +19,7 @@ public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAct
     @Override
     public void onActionReceive(MAFActionExecutor executor, PlayerJoinAction action) {
         this.service.logIncomingAction(executor, action);
-        long now = System.currentTimeMillis();
-        Timestamp timestampNow = new Timestamp(now);
+        Timestamp timestampNow = new Timestamp(System.currentTimeMillis());
 
         QueryResultEntry playersResultEntry = this.service.getStorageService().getPlayer(action.getUniqueId());
         if(playersResultEntry == null) {
@@ -28,8 +27,8 @@ public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAct
                     .set("Id", action.getUniqueId().toString())
                     .set("Name", "")
                     .set("GameProfile", "")
-                    .set("Registered", now)
-                    .set("LastSeen", now)
+                    .set("Registered", timestampNow)
+                    .set("LastSeen", timestampNow)
                     .execute();
         } else {
             this.service.getStorageService().getPlayersCollection().update()
