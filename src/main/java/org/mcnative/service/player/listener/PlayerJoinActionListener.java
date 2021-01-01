@@ -53,6 +53,15 @@ public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAct
                     .execute();
         }
 
+        QueryResultEntry serverPlayersResultEntry = this.service.getStorageService().getServerPlayer(executor.getNetworkId(), executor.getClientId(), action.getUniqueId());
+
+        if(serverPlayersResultEntry != null) {
+            this.service.getStorageService().removeServerPlayer(executor.getNetworkId(), executor.getClientId(), action.getUniqueId());
+            this.service.getLogger().error(String.format("Server player (%s) was not unregistered before from %s@%s",
+                    action.getUniqueId().toString(),
+                    executor.getNetworkId().toString(),
+                    executor.getClientId().toString()));
+        }
         this.service.getStorageService().getServerPlayersCollection().insert()
                 .set("NetworkId", executor.getNetworkId().toString())
                 .set("ServerId", executor.getClientId().toString())

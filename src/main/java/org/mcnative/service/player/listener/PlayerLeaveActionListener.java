@@ -20,11 +20,8 @@ public class PlayerLeaveActionListener implements MAFActionListener<PlayerLeaveA
         this.service.logIncomingAction(executor, action);
         Timestamp timestampNow = new Timestamp(System.currentTimeMillis());
 
-        this.service.getStorageService().getServerPlayersCollection().delete()
-                .where("NetworkId", executor.getNetworkId().toString())
-                .where("ServerId", executor.getClientId().toString())
-                .where("PlayerId", action.getUniqueId())
-                .execute();
+        this.service.getStorageService().removeServerPlayer(executor.getNetworkId(), executor.getClientId(),
+                action.getUniqueId());
 
         this.service.getStorageService().getNetworkPlayersCollection().update()
                 .set("LastSeen", timestampNow)
