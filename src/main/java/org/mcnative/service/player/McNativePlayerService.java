@@ -13,13 +13,18 @@ import org.mcnative.actionframework.service.connector.rabbitmq.MAFRabbitMQConnec
 import org.mcnative.service.player.listener.PlayerJoinActionListener;
 import org.mcnative.service.player.listener.PlayerLeaveActionListener;
 import org.mcnative.service.player.listener.ServerShutdownConfirmActionListener;
+import org.mcnative.service.player.tasks.MojangLookupTask;
 import org.mcnative.service.player.util.Environment;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public final class McNativePlayerService {
 
     private final MAFRabbitMQConnector mafConnector;
     private final StorageService storageService;
     private final PretronicLogger logger;
+
+    private final Collection<Thread> tasks;
 
     public McNativePlayerService(PretronicLogger logger) {
         this.logger = logger;
@@ -33,6 +38,9 @@ public final class McNativePlayerService {
         this.mafConnector = MAFRabbitMQConnector.createShared(factory, "McNativePlayerService", true);
         registerActionListeners();
         this.mafConnector.connect();
+
+        this.tasks = new ArrayList<>();
+        startTasks();
     }
 
     private void registerActionListeners() {
@@ -42,6 +50,9 @@ public final class McNativePlayerService {
     }
 
     protected void stop() {
+        for (Thread task : this.tasks) {
+            task.interrupt();
+        }
         this.mafConnector.disconnect();
     }
 
@@ -57,5 +68,13 @@ public final class McNativePlayerService {
         getLogger().info("Received "+action.getNamespace()+"@"+action.getName()+" from "
                 + executor.getNetworkId().toString() + "@" + executor.getClientId().toString() + " " +
                 DocumentFileType.JSON.getWriter().write(Document.newDocument(action), false));
+    }
+
+    private void startTasks() {
+        this.tasks.add(new MojangLookupTask(this));
+
+        for (Thread task : this.tasks) {
+            task.start();
+        }
     }
 }
