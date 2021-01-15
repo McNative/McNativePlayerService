@@ -4,9 +4,12 @@ import net.pretronic.databasequery.api.query.result.QueryResultEntry;
 import org.mcnative.actionframework.sdk.actions.player.PlayerJoinAction;
 import org.mcnative.actionframework.sdk.common.action.MAFActionExecutor;
 import org.mcnative.actionframework.sdk.common.action.MAFActionListener;
+import org.mcnative.service.player.GameProfile;
 import org.mcnative.service.player.McNativePlayerService;
+import org.mcnative.service.player.MojangRequester;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAction> {
 
@@ -21,14 +24,22 @@ public class PlayerJoinActionListener implements MAFActionListener<PlayerJoinAct
         this.service.logIncomingAction(executor, action);
         Timestamp timestampNow = new Timestamp(System.currentTimeMillis());
 
-        QueryResultEntry playersResultEntry = this.service.getStorageService().getPlayer(action.getUniqueId());
+        UUID playerId = action.getUniqueId();
+        QueryResultEntry playersResultEntry = this.service.getStorageService().getPlayer(playerId);
         if(playersResultEntry == null) {
+            GameProfile profile = MojangRequester.getPlayerProfile(playerId.toString());
+            if(profile == null) {
+                System.err.println("Can't lookup player profile for " + playerId.toString());
+                return;
+            }
             this.service.getStorageService().getPlayersCollection().insert()
                     .set("Id", action.getUniqueId().toString())
-                    .set("Name", "")
-                    .set("GameProfile", "")
+                    .set("Name", profile.getName())
+                    .set("SkinId", profile.getSkinId())
+                    .set("CapeId", profile.getCapeId())
                     .set("Registered", timestampNow)
                     .set("LastSeen", timestampNow)
+                    .set("LastMojangLookup", new Timestamp(System.currentTimeMillis()))
                     .execute();
         } else {
             this.service.getStorageService().getPlayersCollection().update()
