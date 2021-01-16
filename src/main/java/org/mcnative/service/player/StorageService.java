@@ -12,9 +12,12 @@ import net.pretronic.libraries.logging.PretronicLogger;
 import org.mcnative.service.player.util.Environment;
 
 import java.net.InetSocketAddress;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 public class StorageService {
+
+    private final McNativePlayerService service;
 
     private final DatabaseDriver databaseDriver;
     private final Database database;
@@ -23,7 +26,9 @@ public class StorageService {
     private final DatabaseCollection networkPlayersCollection;
     private final DatabaseCollection serverPlayersCollection;
 
-    public StorageService(PretronicLogger logger) {
+    public StorageService(McNativePlayerService service, PretronicLogger logger) {
+        this.service = service;
+
         DatabaseDriverConfig<?> storageConfiguration = new SQLDatabaseDriverConfigBuilder()
                 .setAddress(InetSocketAddress.createUnresolved(Environment.getVariable("DATABASE_HOST"),
                         Integer.parseInt(Environment.getVariable("DATABASE_PORT"))))
@@ -80,6 +85,65 @@ public class StorageService {
                 .where("NetworkId", networkId.toString())
                 .where("ServerId", serverId.toString())
                 .where("PlayerId", playerId.toString())
+                .execute();
+    }
+
+    public void handlePlayerRegister(UUID networkId, UUID serverId, UUID playerId, int protocolVersion) {
+        Timestamp timestampNow = new Timestamp(System.currentTimeMillis());
+
+        QueryResultEntry playersResultEntry = this.service.getStorageService().getPlayer(playerId);
+        if(playersResultEntry == null) {
+            GameProfile profile = MojangRequester.getPlayerProfile(playerId.toString());
+            if(profile == null) {
+                System.err.println("Can't lookup player profile for " + playerId.toString());
+                return;
+            }
+            this.service.getStorageService().getPlayersCollection().insert()
+                    .set("Id", playerId.toString())
+                    .set("Name", profile.getName())
+                    .set("SkinId", profile.getSkinId())
+                    .set("CapeId", profile.getCapeId())
+                    .set("Registered", timestampNow)
+                    .set("LastSeen", timestampNow)
+                    .set("LastMojangLookup", new Timestamp(System.currentTimeMillis()))
+                    .execute();
+        } else {
+            this.service.getStorageService().getPlayersCollection().update()
+                    .set("LastSeen", timestampNow)
+                    .where("Id", playerId.toString())
+                    .execute();
+        }
+
+        QueryResultEntry networkPlayersResultEntry = this.service.getStorageService().getNetworkPlayer(networkId, playerId);
+        if(networkPlayersResultEntry == null) {
+            this.service.getStorageService().getNetworkPlayersCollection().insert()
+                    .set("NetworkId", networkId.toString())
+                    .set("PlayerId", playerId.toString())
+                    .set("Registered", timestampNow)
+                    .set("LastSeen", timestampNow)
+                    .execute();
+        } else {
+            this.service.getStorageService().getNetworkPlayersCollection().update()
+                    .set("LastSeen", timestampNow)
+                    .where("NetworkId", networkId.toString())
+                    .where("PlayerId", playerId.toString())
+                    .execute();
+        }
+
+        QueryResultEntry serverPlayersResultEntry = getServerPlayer(networkId, serverId, playerId);
+
+        if(serverPlayersResultEntry != null) {
+            removeServerPlayer(networkId, serverId, playerId);
+            this.service.getLogger().error(String.format("Server player (%s) was not unregistered before from %s@%s",
+                    playerId.toString(),
+                    networkId.toString(),
+                    serverId.toString()));
+        }
+        this.service.getStorageService().getServerPlayersCollection().insert()
+                .set("NetworkId", networkId.toString())
+                .set("ServerId", serverId.toString())
+                .set("PlayerId", playerId.toString())
+                .set("Joined", timestampNow)
                 .execute();
     }
 }

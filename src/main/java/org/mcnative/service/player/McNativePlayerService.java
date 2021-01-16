@@ -6,12 +6,14 @@ import net.pretronic.libraries.document.type.DocumentFileType;
 import net.pretronic.libraries.logging.PretronicLogger;
 import org.mcnative.actionframework.sdk.actions.player.PlayerJoinAction;
 import org.mcnative.actionframework.sdk.actions.player.PlayerLeaveAction;
+import org.mcnative.actionframework.sdk.actions.server.ServerRecoveryAction;
 import org.mcnative.actionframework.sdk.actions.server.ServerShutdownConfirmAction;
 import org.mcnative.actionframework.sdk.common.action.MAFAction;
 import org.mcnative.actionframework.sdk.common.action.MAFActionExecutor;
 import org.mcnative.actionframework.service.connector.rabbitmq.MAFRabbitMQConnector;
 import org.mcnative.service.player.listener.PlayerJoinActionListener;
 import org.mcnative.service.player.listener.PlayerLeaveActionListener;
+import org.mcnative.service.player.listener.ServerRecoveryActionListener;
 import org.mcnative.service.player.listener.ServerShutdownConfirmActionListener;
 import org.mcnative.service.player.tasks.MojangLookupTask;
 import org.mcnative.service.player.util.Environment;
@@ -47,6 +49,7 @@ public final class McNativePlayerService {
         this.mafConnector.subscribeAction(PlayerJoinAction.class, new PlayerJoinActionListener(this));
         this.mafConnector.subscribeAction(PlayerLeaveAction.class, new PlayerLeaveActionListener(this));
         this.mafConnector.subscribeAction(ServerShutdownConfirmAction.class, new ServerShutdownConfirmActionListener(this));
+        this.mafConnector.subscribeAction(ServerRecoveryAction.class, new ServerRecoveryActionListener(this));
     }
 
     protected void stop() {
