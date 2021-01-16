@@ -31,7 +31,7 @@ public final class McNativePlayerService {
     public McNativePlayerService(PretronicLogger logger) {
         this.logger = logger;
 
-        this.storageService = new StorageService(logger);
+        this.storageService = new StorageService(this, logger);
 
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(Environment.getVariable("RABBITMQ_HOST"));
